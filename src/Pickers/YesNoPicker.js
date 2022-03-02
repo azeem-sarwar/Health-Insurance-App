@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
 
   },
   selection: {
-    fontSize: 16,
+    fontSize: 14,
     flex: 1,
     //fontWeight: 'bold',
     // color: '#15317E',

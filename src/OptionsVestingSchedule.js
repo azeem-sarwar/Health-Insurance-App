@@ -97,8 +97,6 @@ const fetchStock = async () => {
     const {stockPriceNow,isVestingOption,optionsVesting,cliff,vestingPeriod,     stockOptionsGrantDate,evaluateDate, numOfOptionsGrandted, strikePrice} = state
      
     const currentMarketPrice = latestValues?.value?latestValues.value["1. open"]: 0
-
-console.log(state)
     let optionsVestingPerMonth = 0
     
     if(isVestingOption){
@@ -204,32 +202,38 @@ console.log(state)
 
 const {value, latestValues} = state
 return (
-<ScrollView style={styles.scrollView}>
+  <View style = {{flex: 1}}>
+  {/* <ScrollView style={styles.scrollView}> */}
   <OptionModal ModalOpen = {ModalOpen} setModalOpen = {()=>setModalOpen(!ModalOpen)} />
-  <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container1}>
+  {/* <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container1}> */}
 
-        <Image style={{ width: 200, height: 200,  borderRadius: 50, alignSelf: 'center'}}
-    source={require('./Images/StockOption2.png')} />
+        {/* <Image style={{ width: 200, height: 200,  borderRadius: 50, alignSelf: 'center'}}
+    source={require('./Images/StockOption2.png')} /> */}
 
-
-        <Text style={styles.header}>  What could my options be worth in the future?</Text>
-        <Text style={styles.description}>If you are offered stock options, you might be wondering what might they be worth and what the tax implications might be. </Text>
+        <View style={{flex: 1, justifyContent: 'flex-end'}}>
+          <Text style={styles.header}>  What could my options be worth in the future?</Text>
+          <Text style={[styles.description,]}>If you are offered stock options, you might be wondering what might they be worth and what the tax implications might be. </Text>
+          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginVertical: 30}}>
+              <TouchableOpacity style={styles.Button1} onPress = {()=>{navigation.navigate("PriveteVestingSchedule")}}>
+                <Text style = {styles.historyBtnText}>PRIVATE</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.Button1,{backgroundColor: 'rgb(222,221,221)'}]} onPress = {()=>{navigation.navigate("PublicVestingSchedule")}}>
+                <Text style = {[styles.historyBtnText,{color: "#595959"}]}>PUBLIC</Text>
+              </TouchableOpacity>
+          </View>
+        </View>
+        <View style={styles.bg}>
+          <Text style={[styles.description,{color: "#fff", textAlign: "left"}]}>Stock options give you the right to buy a set number of shares of your company's stock at a pre-set price (Grant Price). You have a set amount of time to exercise your options before they expire. Grant date is the day your options begin to vest. When a stock option vests it is available for you to exercise or buy. The options usually vest gradually, over vesting period. If your options have a 4 year vesting period, with a 1 year cliff, it means it will take 4 years before you have the right to exercise all 20,000 options. 1 year cliff means that some portion of these options will become avaiable to excersize after 1 year. </Text>
+        </View>
         
         
-        <Text style={styles.header2}> Select Your Company Type</Text>
+        {/* <Text style={styles.header2}> Select Your Company Type</Text> */}
         
-        
-          <TouchableOpacity style={styles.Button1} onPress = {()=>{navigation.navigate("PriveteVestingSchedule")}}>
-            <Text style = {styles.historyBtnText}>PRIVATE</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.Button1} onPress = {()=>{navigation.navigate("PublicVestingSchedule")}}>
-            <Text style = {styles.historyBtnText}>PUBLIC</Text>
-          </TouchableOpacity>
       
-      <Text style={styles.description}>Stock options give you the right to buy a set number of shares of your company's stock at a pre-set price (Grant Price). You have a set amount of time to exercise your options before they expire. Grant date is the day your options begin to vest. When a stock option vests it is available for you to exercise or buy. The options usually vest gradually, over vesting period. If your options have a 4 year vesting period, with a 1 year cliff, it means it will take 4 years before you have the right to exercise all 20,000 options. 1 year cliff means that some portion of these options will become avaiable to excersize after 1 year. </Text>
      
-  </KeyboardAvoidingView>
-</ScrollView>
+  {/* </KeyboardAvoidingView> */}
+{/* </ScrollView> */}
+</View>
 )
 }
 
@@ -244,25 +248,29 @@ const styles = StyleSheet.create({
     flex: 1
   },
   Button1: {
-     marginVertical: 10,
-     backgroundColor: '#15317E',
+      flex: 1,
+    //  marginVertical: 10,
+     backgroundColor: 'rgb(0,132,37)',
      shadowColor:'black',
-     padding: 15,
+     padding: 10,
+     marginHorizontal: 10,
      borderRadius: 10
      
    },
    historyBtnText: {
-    fontSize: 24,
+    fontSize: 16,
     color: "#fff",
     alignSelf: "center",
       },
 
   header: {
-    marginTop: 5,
-    marginBottom: 10,
-    fontSize: 28,
+    // marginTop: 5,
+    // marginBottom: 10,
+    marginHorizontal: '8%',
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#15317E',
+    // color: '#15317E',
+    color: '#008425',
     padding: 5,
     borderRadius: 5,
     justifyContent: 'center',
@@ -285,14 +293,23 @@ const styles = StyleSheet.create({
     textAlign: 'center',
      
   },
-  
+  bg: {
+    flex: 1.5, 
+    marginTop: 10,
+    backgroundColor: '#0FBC8B',
+    borderTopLeftRadius:  30,
+    borderTopRightRadius: 30,
+    padding: 15,
+  },
   
  description: {
-     textAlign: 'left',
-     color: '#15317E',
-     fontSize: 14,
-     marginTop: 10,
-     marginBottom: 10,
+     textAlign: 'center',
+    //  color: '#15317E',
+     color: '#595333',
+     lineHeight: 18,
+     fontSize: 11,
+    //  marginTop: 10,
+    //  marginBottom: 10,
      padding: 10,
      borderRadius: 5,
     },

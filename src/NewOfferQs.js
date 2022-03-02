@@ -14,8 +14,9 @@ import { createRow } from './Row';
 import { Ionicons } from '@expo/vector-icons';
 import NewOfferModal from "./components/ESPPModal"
 import ProgressCircle from 'react-native-progress-circle'
-
-
+import PublicVestingSchedule from './PublicVestingSchedule';
+import PriveteVestingSchedule from './PriveteVestingSchedule';
+import ESPPCalcs from './ESPPCalcs'
 
 
 
@@ -29,6 +30,8 @@ import ProgressCircle from 'react-native-progress-circle'
     const [HealthInsCost, setHealthInsCost] = useState(0);
     const [ESPP, setESPP] = useState(0);
     const [StockOptions,setStockOptions] = useState(0);
+    const [DentalVisionCostCompany,setDentalVisionCostCompany] = useState(0);
+    const [HealthInsCostCompany, setHealthInsCostCompany] = useState(0);
     const [DentalVisionCost,setDentalVisionCost] = useState(0);
     const [VacationDays,setVacationDays] = useState(0);
     const [SickDays,setSickDays] = useState(0);
@@ -51,7 +54,12 @@ import ProgressCircle from 'react-native-progress-circle'
     const [compensation,setCompensation] = useState (0);
     const [totalVacaValue,setTotalVacaValue] = useState (0);
     const [totalPensionBenefit,setTotalPensionBenefit] = useState (0);
+    const [totalHealthBenefit,setTotalHealthBenefit] = useState (0);
     const [totalPensionBenefit10,setTotalPensionBenefit10] = useState (0);
+    const [immidiateGain, setImmidiateGain] = useState(false);
+    const [espp, setEspp] = useState(false)
+    const [isEmployeeStockOption, setIsEmployeeStockOption] = useState(false)
+    const [isImmidiateGain, setIsImmidiateGain] = useState(false);
       
     
     const [ModalOpen, setModalOpen] = useState(false);
@@ -72,13 +80,19 @@ import ProgressCircle from 'react-native-progress-circle'
 
     
     function calcNewOfferQs (){
-      let compensation=(parseInt(Salary) + parseInt(CashBonus)+parseInt(AdditionalComp)-parseInt(HealthInsCost)-parseInt(DentalVisionCost)+parseInt(CommuteCash)+parseInt(DBInflow)+parseInt(DCInflow)+parseInt(IRA)+parseInt(ChildCare)+parseInt(Tuition)+parseInt(Gym));
-      // setCompensation(compensation);
-
       let totalVacaValue=((parseInt(Salary)+parseInt(CashBonus)+parseInt(AdditionalComp))/261)*((parseInt(VacationDays)+parseInt(SickDays)+parseInt(FloatDays)));
       // setTotalVacaValue(totalVacaValue);
 
+      let totalHealthBenefit=(((parseInt(HealthInsCostCompany)*12+parseInt(DentalVisionCostCompany)*12-parseInt(HealthInsCost)*12-parseInt(DentalVisionCost)*12)));
+      
+      let compensation=(parseInt(Salary)+parseInt(CashBonus)+parseInt(AdditionalComp)+totalVacaValue+totalHealthBenefit+parseInt(CommuteCash)+parseInt(DBInflow)+parseInt(DCInflow)+parseInt(IRA)+parseInt(ChildCare)+parseInt(Tuition)+parseInt(Gym));
+      // setCompensation(compensation);
+
+      
+
       let totalPensionBenefit=(((parseInt(DBInflow)+parseInt(DCInflow)+parseInt(IRA))));
+
+      
 
       let totalPensionBenefit10=(((parseInt(DBInflow)+parseInt(DCInflow)+parseInt(IRA))*(1+0.05))*10);
       // setTotalPensionBenefit(totalPensionBenefit);
@@ -87,6 +101,7 @@ import ProgressCircle from 'react-native-progress-circle'
         totalVacaValue: totalVacaValue.toFixed(0),
         totalPensionBenefit,
         totalPensionBenefit10,
+        totalHealthBenefit,
       }
 
  }
@@ -103,21 +118,27 @@ const saveHistory = () => {
       totalcompensation: compensation,
       totalpension: totalPensionBenefit,
       totalpension10: totalPensionBenefit10,
-      totalvacation: totalVacaValue
+      totalvacation: totalVacaValue,
+      totalhealthBenefit: totalHealthBenefit,
     }]);
     setShowButton(false);
   }
 
   const showHistory = () => {
     const calculations = calcNewOfferQs() 
-    navigation.replace('History',{
+    navigation.navigate('History',{
       history: {
         companyTicker,
         salary: Salary,
         cashBonus: CashBonus,
         additionalComp: AdditionalComp,
         commuteCash: CommuteCash,
+        DBInflow: DBInflow,
+        immidiateGain: immidiateGain,
+        ChildCare: ChildCare,
+        espp: espp,
         totalcompensation: calculations.compensation,
+        totalhealthBenefit: calculations.totalHealthBenefit,
         totalvacation:     calculations.totalVacaValue,
         totalpension:      calculations.totalPensionBenefit,
         totalpension10:    calculations.totalPensionBenefit10
@@ -132,8 +153,9 @@ const saveHistory = () => {
   return (
     <View style={{flex: 1, backgroundColor: "white"}}>
     <NewOfferModal ModalOpen = {ModalOpen} setModalOpen = {()=>setModalOpen(!ModalOpen)} />
-    <ScrollView>
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container1}>
+    <ScrollView bounces = {false}>
+    {/* <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container1}> */}
+    <View style={styles.container1}>
        <View style={styles.container1}>
         
         {activeSection == 0?
@@ -141,10 +163,10 @@ const saveHistory = () => {
               <View style={styles.topBg1}>
                 <Image style={{width: 300, height: 300,  left: 1, borderRadius: 100, alignItems: 'center',                 justifyContent: 'center'}} source={require('./Images/Sally1.png')} />
               </View>
-              <View style={{flex: 1, marginHorizontal: 10}}>
-                <Text style={styles.header1}>Compensation Evaluation</Text>
-                <Text style={styles.description1}>Having multiple job offers on the table provides the relief of job security and validation of your qualifications, while also requiring you to make a big life decision. </Text>
-                <Text style={styles.description1}>If one job is more appealing to you than the other, but the other has a better benefits package, consider negotiating your salary. </Text>
+              <View style={{flex: 1, marginHorizontal: 10, marginRight: 30}}>
+                  <Text style={styles.header1}>Compensation Evaluation</Text>
+                  <Text style={styles.description1}>Having multiple job offers on the table provides the relief of job security and validation of your qualifications, while also requiring you to make a big life decision. </Text>
+                  <Text style={styles.description1}>If one job is more appealing to you than the other, but the other has a better benefits package, consider negotiating your salary. </Text>
               </View>
             </View>
           :<></>
@@ -155,7 +177,7 @@ const saveHistory = () => {
           <View style={{flex: 1}}>
             <View style={styles.topBg}>
             <ProgressCircle
-                percent = {parseInt(activeSection/7 * 100)}
+                percent = {parseInt(activeSection/9 * 100)}
                 radius={70}
                 borderWidth={12}
                 color="#A259FF"
@@ -163,14 +185,14 @@ const saveHistory = () => {
                 bgColor="rgb(15,188,139)"
               >
               <Text style={{ fontSize: 18, color: "#fff",fontWeight: "bold", marginBottom: 5 }}>
-                {`${parseInt(activeSection/7 * 100)}%`}
+                {`${parseInt(activeSection/9 * 100)}%`}
               </Text>
-              <Text style={{ fontSize: 12, color: "#fff",fontWeight: "bold"  }}>{`${activeSection} of 7 complete`}</Text>
+              <Text style={{ fontSize: 12, color: "#fff",fontWeight: "bold"  }}>{`${activeSection} of 9 complete`}</Text>
               </ProgressCircle>
 
             
                 <View style={{marginTop: 15}}>
-                <Text style={{color: "#555F5C"}}>{`You're ${( 7 - activeSection)} step away from completion`}</Text>
+                <Text style={{color: "#555F5C"}}>{`You're ${( 9 - activeSection)} step away from completion`}</Text>
                 </View>
             </View>
             <View style={{flex: 1, borderWidth: 2, borderColor: "#008425", margin: 20, 
@@ -181,20 +203,21 @@ const saveHistory = () => {
             {activeSection == 1?
               <>
                 <Text style={styles.header}>Annual Salary</Text>
-                <InputWrapper value = {Salary}>
+                <InputWrapper textAlign={"center"} value = {Salary}>
                   <TextInput style = {[styles.answer1,{color: "transparent"}]}
                     underlineColorAndroid = "transparent"
-                    placeholder = "Please enter annual salary"
+                    placeholder = "Annual Salary"
                     autoCapitalize = "none"
+                    value = {Salary}
                     onChangeText={Salary => setSalary(Salary)}
                     keyboardType={'numeric'}
                   />
                 </InputWrapper>
                 
-                <InputWrapper value = {CashBonus}>
+                <InputWrapper textAlign={"center"} value = {CashBonus}>
                   <TextInput style = {[styles.answer1,{color: "transparent"}]}
                     underlineColorAndroid = "transparent"
-                    placeholder = "Please Enter Annual Cash Bounse"
+                    placeholder = "Annual Cash Bonus"
                     autoCapitalize = "none"
                     onChangeText={CashBonus => {setCashBonus(CashBonus)}}
                     numeric
@@ -204,13 +227,14 @@ const saveHistory = () => {
                   />
                 </InputWrapper>
                 
-                <InputWrapper value = {AdditionalComp}>
+                <InputWrapper textAlign={"center"} value = {AdditionalComp}>
                 <TextInput style = {[styles.answer1,{color: "transparent"}]}
                   underlineColorAndroid = "transparent"
-                  placeholder = "Please enter any additional annual cash compensation"
+                  placeholder = "Additional Annual Cash Compensation"
                   autoCapitalize = "none"
                   onChangeText = {AdditionalComp => setAdditionalComp(AdditionalComp)}
                   numeric
+                  value = {AdditionalComp}
                   keyboardType={'numeric'}
                 />
               </InputWrapper>
@@ -225,7 +249,7 @@ const saveHistory = () => {
               <PrivatePublicPicker placeholder = {"Is Your Company Public or Private?"}/>
               <TextInput style = {styles.answer1}
                 underlineColorAndroid = "transparent"
-                placeholder = "If a Public Company Enter Your Company Ticker?"
+                placeholder = "If a Public Company Enter Ticker?"
                 autoCapitalize = "characters"
                 keyboardType={''}
                 onChangeText = {text=>setCompanyTicker(text)}
@@ -238,26 +262,51 @@ const saveHistory = () => {
             <>
 
           
-          <Text style={styles.header}>Benefits</Text>
+              <Text style={styles.header}>Health and Dental Benefits</Text>
             
-              <InputWrapper value = {HealthInsCost}>
+              <InputWrapper textAlign={"center"} value = {HealthInsCost}>
+                <TextInput 
+                  style = {[styles.answer1,{color: "transparent"}]}
+                  value={HealthInsCost}
+                  onChangeText = {HealthInsCost => setHealthInsCost(HealthInsCost)}
+                  underlineColorAndroid = "transparent"
+                  placeholder = "Health: Employee Cost Per Month"
+                  autoCapitalize = "none"
+                  keyboardType={'numeric'}
+                />
+              </InputWrapper>
+
+              <InputWrapper textAlign={"center"} value = {HealthInsCostCompany}>
+                <TextInput 
+                  style = {[styles.answer1,{color: "transparent"}]}
+                  value={HealthInsCostCompany}
+                  onChangeText = {HealthInsCostCompany => setHealthInsCostCompany(HealthInsCostCompany)}
+                  underlineColorAndroid = "transparent"
+                  placeholder = "Health: Employer Cost Per Month"
+                  autoCapitalize = "none"
+                  keyboardType={'numeric'}
+                />
+              </InputWrapper>
+
+              <InputWrapper textAlign={"center"} value = {DentalVisionCost}>
                 <TextInput style = {[styles.answer1,{color: "transparent"}]}
-                    value={HealthInsCost}
-                    onChangeText = {HealthInsCost => setHealthInsCost(HealthInsCost)}
+                    value={DentalVisionCost}
+                    onChangeText = {DentalVisionCost => setDentalVisionCost(DentalVisionCost)}
                     underlineColorAndroid = "transparent"
-                    placeholder = "Health Insurance: Your Out of Pocket Cost Per Year"
+                    placeholder = "Dental and Vision: Employee Cost Per Month"
                     autoCapitalize = "none"
                     
                     numeric
                     keyboardType={'numeric'}
                 />
               </InputWrapper>
-              <InputWrapper value = {DentalVisionCost}>
+
+              <InputWrapper textAlign={"center"} value = {DentalVisionCostCompany}>
                 <TextInput style = {[styles.answer1,{color: "transparent"}]}
-                    value={DentalVisionCost}
-                    onChangeText = {DentalVisionCost => setDentalVisionCost(DentalVisionCost)}
+                    value={DentalVisionCostCompany}
+                    onChangeText = {DentalVisionCostCompany => setDentalVisionCostCompany(DentalVisionCostCompany)}
                     underlineColorAndroid = "transparent"
-                    placeholder = "Dental and Vision: Your Out of Pocket Cost Per Year"
+                    placeholder = "Dental and Vision: Employer Cost Per Month"
                     autoCapitalize = "none"
                     
                     numeric
@@ -274,7 +323,7 @@ const saveHistory = () => {
             <>
             
             <Text style={styles.header}>Vacation Package</Text>
-                <TextInput style = {styles.answer1}
+                <TextInput style = {[styles.answer1,{marginVertical: 5}]}
                     value={VacationDays}
                     onChangeText = {VacationDays => setVacationDays(VacationDays)}
                     underlineColorAndroid = "transparent"
@@ -282,7 +331,7 @@ const saveHistory = () => {
                     autoCapitalize = "none"
                     keyboardType={'numeric'}
                 />
-                <TextInput style = {styles.answer1}
+                <TextInput style = {[styles.answer1,{marginVertical: 5}]}
                     value={SickDays}
                     onChangeText = {SickDays => setSickDays(SickDays)}
                     underlineColorAndroid = "transparent"
@@ -290,7 +339,7 @@ const saveHistory = () => {
                     autoCapitalize = "none"
                     keyboardType={'numeric'}
                 />
-                <TextInput style = {styles.answer1}
+                <TextInput style = {[styles.answer1,{marginVertical: 5}]}
                     value={FloatDays}
                     onChangeText = {FloatDays => setFloatDays(FloatDays)}
                     underlineColorAndroid = "transparent"
@@ -308,7 +357,7 @@ const saveHistory = () => {
             <>
             
             <Text style={styles.header}>Commuter Benefits</Text>
-                <InputWrapper value = {CommuteCash}>
+              <InputWrapper textAlign={"center"} value = {CommuteCash}>
                 <TextInput style = {[styles.answer1,{color: "transparent"}]}
                   value={CommuteCash}
                   onChangeText = {CommuteCash => setCommuteCash(CommuteCash)}
@@ -326,7 +375,7 @@ const saveHistory = () => {
             activeSection == 6?
             <>
           <Text style={styles.header}>Retirement Package</Text>
-              <InputWrapper value = {DBInflow}>
+              <InputWrapper textAlign={"center"}  value = {DBInflow}>
               <TextInput style = {[styles.answer1,{color: "transparent"}]}
                     value={DBInflow}
                     onChangeText = {DBInflow => setDBInflow(DBInflow)}
@@ -339,7 +388,7 @@ const saveHistory = () => {
                 />
                 </InputWrapper>
 
-                <InputWrapper value = {DCInflow}>
+                <InputWrapper textAlign={"center"}  value = {DCInflow}>
                 <TextInput style = {[styles.answer1,{color: "transparent"}]}
                     value={DCInflow}
                     onChangeText = {DCInflow => setDCInflow(DCInflow)}
@@ -350,7 +399,7 @@ const saveHistory = () => {
                 keyboardType={'numeric'}
                 />
                 </InputWrapper>
-                <InputWrapper value = {IRA}>
+                <InputWrapper textAlign={"center"}  value = {IRA}>
                 <TextInput style = {[styles.answer1,{color: "transparent"}]}
                     value={IRA}
                     onChangeText = {IRA => setIRA(IRA)}
@@ -368,10 +417,8 @@ const saveHistory = () => {
           {
             activeSection == 7?
             <>
-            
               <Text style={styles.header}>Flexible Benefits Plan</Text>
-              
-              <InputWrapper value = {ChildCare}>
+              <InputWrapper textAlign={"center"}  value = {ChildCare}>
               <TextInput style = {[styles.answer1,{color: "transparent"}]}
                   value={ChildCare}
                   onChangeText = {ChildCare => setChildCare(ChildCare)}
@@ -383,7 +430,7 @@ const saveHistory = () => {
                 />
               </InputWrapper>
                 
-              <InputWrapper value = {Tuition}>
+              <InputWrapper textAlign={"center"}  value = {Tuition}>
                 <TextInput style = {[styles.answer1,{color: "transparent"}]}
                     value={Tuition}
                     onChangeText = {Tuition => setTuition(Tuition)}
@@ -394,7 +441,7 @@ const saveHistory = () => {
                 keyboardType={'numeric'}
                 />
                 </InputWrapper>
-              <InputWrapper value = {Gym}>
+                <InputWrapper textAlign={"center"}  value = {Gym}>
                 <TextInput style = {[styles.answer1,{color: "transparent"}]}
                     value={Gym}
                     onChangeText = {Gym => setGym(Gym)}
@@ -405,19 +452,68 @@ const saveHistory = () => {
                     keyboardType={'numeric'}
                 />
               </InputWrapper>
+              
             </>
             :<></>
           }
+          {
+            activeSection == 8?
+              isImmidiateGain?
+                isImmidiateGain == "public"?
+                  <PublicVestingSchedule onCalculate = {(data)=>{
+                    setImmidiateGain(data?.immidiateGain0 || 0);
+                    setIsImmidiateGain(false)
+                  }} />
+                  :
+                  <PriveteVestingSchedule onCalculate = {(data)=>{setImmidiateGain(data?.immidiateGain0 || 0);setIsImmidiateGain(false)}} />
+                  :
+                  <View style={{alignItems: 'center', justifyContent: 'center', marginTop: 15}}>
+                    
+                    {/* <Text style={[styles.btnText,{marginVertical: 10}]}>Calculate Immidiate Gain</Text> */}
+                    <Text style={[styles.btnText,{marginVertical: 10}]}>Evaluate Stock Options</Text>
+                    <Text style={[styles.text]}>WHAT EVER YOU WANT</Text>
+                    {
+                      immidiateGain !==false ?
+                      <View style={{flex: 1, paddingVertical: 10}}>
+                        <Text style={[styles.btnText]} >Calculated value is: {immidiateGain}</Text>
+                      </View>:<></>
+                    }
+                    <View style={{flexDirection: 'row'}}>
+                      <TouchableOpacity style= {[styles.btn,{backgroundColor: 'rgb(222,221,221)', flex: 1}]} onPress= {()=>setIsImmidiateGain("public")}>
+                        <Text style={[styles.btnText,{color: '#595959'}]} >Public</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style= {[styles.btn,{backgroundColor: "#008425",flex: 1}]} onPress= {()=>setIsImmidiateGain("private")}>
+                        <Text style={[styles.btnText,{color: '#fff'}]} >Private</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                :<></>
+              }
+              {
+                activeSection == 9?
+                <View style={{alignItems: 'center', justifyContent: 'center', marginTop: 15}}>
+                  <Text style={[styles.btnText,{marginVertical: 10}]}>Employee Stock Purchase Plan</Text>
+                  {
+                    isEmployeeStockOption?
+                    <ESPPCalcs onCalculate = {(data)=>{setEspp(data)}}/>
+                    :
+                    <TouchableOpacity style= {[styles.btn,{backgroundColor: 'rgb(222,221,221)', flex: 1}]} onPress= {()=>setIsEmployeeStockOption(true)}>
+                      <Text style={[styles.btnText,{color: '#595959'}]} >Calculate</Text>
+                    </TouchableOpacity>
+                  }
+                </View>
+                :<></>
+              }
             </View>
           </View>
           :<></>
         }
      </View>
- </KeyboardAvoidingView>  
+ </View>  
  </ScrollView>
   <View style = {{justifyContent: 'space-space-between', margin: 15}}>
     {
-      activeSection < 7?
+      activeSection < 9?
       <TouchableOpacity  
         style={[styles.btn,{backgroundColor: "#fff"}]} 
         onPress = {()=>{setActiveSection(activeSection+ 1)}}>
@@ -458,6 +554,10 @@ const saveHistory = () => {
     
   },
 
+  text: {
+    fontSize: 12,
+  },
+
 topBg: {
   backgroundColor: 'rgb(15,188,139)', 
   paddingVertical: 20,
@@ -484,15 +584,16 @@ btn: {
   // flex: 1,
   alignItems: 'center', 
   justifyContent: 'center', 
-  height: 50, 
+  height: 45, 
   // backgroundColor: '#15C951', 
   backgroundColor: '#D3D3D3',
   borderWidth: 1,
   borderColor: '#D3D3D3',
-  padding: 15,
+  padding: 10,
   borderRadius: 10, 
   shadowColor:'black', 
   marginVertical: 10,
+  marginHorizontal: 5
 },
 
 
@@ -519,7 +620,7 @@ btnText: {
   },
   header1: {
     marginTop: 35,
-    marginBottom: 10,
+    marginBottom: 5,
     fontSize: 20,
     fontWeight: 'bold',
     color: '#008425',
@@ -535,29 +636,33 @@ btnText: {
     padding: 5,
     marginHorizontal: 3,
     borderRadius: 10,
-    color: 'transparent',
+    color: 'rgb(0, 81, 3)',
     elevation: 5,
     flexDirection: 'row',
     minHeight: 40,
-    marginVertical: 5,
+    // marginVertical: 5,
+    fontSize: 14,
     paddingLeft: 10,
+    textAlign: "center",
     backgroundColor: '#ECECEC',
     
   },
   
   
   description1: {
-    color: "rgb(0, 81, 3)",
-    borderRadius: 20,
-    fontWeight: "500",
-    fontFamily: "Poppins",
-    letterSpacing: 0,
-    textAlign: "left",
-    fontSize: 13,
-    // marginTop: 20,
-    padding: 10,
-    // marginBottom: 20,
-               },
+      // color: "rgb(0, 81, 3)",
+      borderRadius: 20,
+      fontWeight: "500",
+      fontFamily: "Poppins",
+      letterSpacing: 0,
+      textAlign: "left",
+      color: '#595333',
+      fontSize: 13,
+      lineHeight: 18,
+      // marginTop: 20,
+      padding: 5,
+      // marginBottom: 20,
+    },
 
   });
   

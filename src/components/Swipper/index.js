@@ -58,7 +58,7 @@ return (
                     <View style={styles.topBg}>
                       <Image style={{width: 300, height: 300,  left: 1, borderRadius: 100, alignItems: 'center',justifyContent: 'center'}} source={slide.image} />
                     </View>
-                    <View style = {{flex: 1, marginHorizontal: 10,marginTop: 30,}}>
+                    <View style = {{flex: 1, marginHorizontal: 10,marginTop: 20,marginRight: 30}}>
                       <Text style = {styles.header}>{slide.title}</Text>
                       <Text style = {styles.underHeaderText}>{slide.subtitle}</Text>
                     </View>
@@ -75,17 +75,20 @@ return (
 const styles = StyleSheet.create({
 
   underHeaderText: {
-    color: "rgb(0, 81, 3)",
+    // color: "rgb(0, 81, 3)",
     borderRadius: 10,
     fontWeight: "500",
-    fontFamily: "Poppins",
+    color: '#595333',
+    fontSize: 13,
+    lineHeight: 18,
     letterSpacing: 0,
     textAlign: "left",
-    fontSize: 15,
+    fontSize: 13,
     marginTop: 20,
     padding: 5,
     marginBottom: 20,
-               },
+    lineHeight: 18
+  },
   
   header: {
     // marginTop: 35,

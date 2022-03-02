@@ -11,6 +11,7 @@ import { StackParamList } from '../../App';
 import OptionModal from "../components/OptionModal"
 import {fetchStockApi} from "../apis"
 import { createRow } from '../Row';
+import { useNavigation } from '@react-navigation/core';
 
 //original navigator code
 type ScreenProps = {
@@ -22,8 +23,8 @@ type ScreenProps = {
 
 
 
-const index = ({route,navigation}) => {
-   
+const index = ({onCalculate = false}) => {
+    const navigation = useNavigation()
     const [state, setState] = React.useState ({
       stockChartXValues: [],
       stockChartYValues: [],
@@ -176,21 +177,27 @@ console.log(state)
       '0'
     }
     
+    const data = {
+      optionsVestingPerMonth: optionsVestingPerMonth,
+      numberOfMonths0: numberOfMonths0,
+      numberOfMonths1: numberOfMonths1,
+      numberOfMonths2: numberOfMonths2,
+      numberOfMonths3: numberOfMonths3,
+      optionsVested0: optionsVested0,
+      fundsToExcOptionsVested0: fundsToExcOptionsVested0,
+      immidiateGain0: immidiateGain0,
+      
+  
+    }
     
+    if(onCalculate !== false){
+      onCalculate(data)
+    }else{
+      navigation.navigate("OptionGrantWorth",data)
+
+    }
     
 
-  navigation.navigate("OptionGrantWorth",{
-    optionsVestingPerMonth: optionsVestingPerMonth,
-    numberOfMonths0: numberOfMonths0,
-    numberOfMonths1: numberOfMonths1,
-    numberOfMonths2: numberOfMonths2,
-    numberOfMonths3: numberOfMonths3,
-    optionsVested0: optionsVested0,
-    fundsToExcOptionsVested0: fundsToExcOptionsVested0,
-    immidiateGain0: immidiateGain0,
-    
-
-  })
 
 
   }

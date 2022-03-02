@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   },
   selection: {
      
-    fontSize: 16,
+    fontSize: 14,
     // textAlign: 'center',
     flex: 1,
     //fontWeight: 'bold',

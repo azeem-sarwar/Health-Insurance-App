@@ -76,7 +76,7 @@ function App() {
           }}
         >
         <Stack.Screen
-          name="Home"
+          name="Home" //navigation.navigate("Home")
           component={HomeScreen}
           options={{
             title: '',
@@ -97,7 +97,7 @@ function App() {
            
         
         <Stack.Screen
-          name="NewOfferQs"
+          name="NewOfferQs" //navigation.navigate("NewOfferQs")
           component={NewOfferQs}
           options={{
             headerBackTitleVisible: false,

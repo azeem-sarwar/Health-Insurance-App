@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, Button, TouchableOpacity, Navigation, Image, Na
 
 import bs from "black-scholes";
 
-const samples: { title: string; routeName: any, image: any, des: any }[] = [
+// const samples: { title: string; routeName: any, image: any, des: any }[] = [
+const samples = [
   
   { title: 'Calculate Your Full Compensation', routeName: 'NewOfferQs', image: require("../../Images/JobOffer1.png"), des: "How Attractive is My Job Offer?" },
   { title: 'Evaluate Your Stock Purchase Plan', routeName: 'ESPPCalculator', image: require("../../Images/EmployeeStock2.png"), des: "Is My Company's Stock a Good Investment?" },

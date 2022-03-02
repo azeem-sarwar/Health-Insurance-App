@@ -10,40 +10,11 @@ import { StackParamList } from '../App';
 import {fetchStockApi} from "./apis"
 
 import ESPPModal from "./components/ESPPModal"
-
-import { createRow } from './Row';
-import Swiper from 'react-native-swiper'
 import Swipper from "./components/Swipper"
+import { useNavigation } from '@react-navigation/core';
 
-//original navigator code
-type ScreenProps = {
-  navigation: StackNavigationProp<StackParamList>;
-};
 
 //AllCalcs code
-const DismissKeyboard = ({ children }) => (
-  <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-    {children}
-  </TouchableWithoutFeedback>
-);
-
-
-
-const ESPPBtn = (props) => {
-  return (
-    <TouchableOpacity onPress={props.onPress} style={styles.Button1}>
-      <Text style={{ fontSize: 20, color: '#fff' }}>{props.title}</Text>
-    </TouchableOpacity>
-  );
-}
-
-const CalcBtn = (props) => {
-  return (
-    <TouchableOpacity onPress={props.onPress} style={styles.Button1}>
-      <Text style={styles.historyBtnText}>{props.title}</Text>
-    </TouchableOpacity>
-  );
-}
 
 const Separator = () => (
   <View style={styles.separator} />
@@ -52,7 +23,8 @@ const Separator = () => (
 
 
 
-const AllCalcs = ({route,navigation}) => {
+const AllCalcs = ({onCalculate = false}) => {
+    const navigation = useNavigation()
    
     const [state, setState] = React.useState ({
       stockChartXValues: [],
@@ -63,18 +35,20 @@ const AllCalcs = ({route,navigation}) => {
 
    const [ModalOpen, setModalOpen] = useState(false);
      React.useEffect(()=>{
-      navigation.setOptions({ headerRight: ()=>{
-          return (
-            <Ionicons  
-            name="help-circle-outline" 
-            size={32} 
-            color="#FFFFFF"
-            style={{marginRight: 10 }}
-            onPress={() => setModalOpen(true)}
-          />
-          )
-        }
-      })
+      if(onCalculate == false){
+        navigation.setOptions({ headerRight: ()=>{
+            return (
+              <Ionicons  
+              name="help-circle-outline" 
+              size={32} 
+              color="#FFFFFF"
+              style={{marginRight: 10 }}
+              onPress={() => setModalOpen(true)}
+            />
+            )
+          }
+        })
+      }
     },[])
 
    const [StockDiscount, setStockDiscount] = React.useState (0);
@@ -144,13 +118,21 @@ const saveESPPExplanation = () => {
   const showESPPExplanation = () => {
     const calculations = calcAllCalcs();
     console.log(calculations);
-    
-    navigation.navigate('ESPPExplanation',{
-      history: {
-      eSPPExplanation:calculations,
-      latestValues: state.latestValues,
-      ticker: state.value
-    }});
+    if(onCalculate == false){
+      navigation.navigate('ESPPExplanation',{
+        history: {
+          eSPPExplanation:calculations,
+          latestValues: state.latestValues,
+          ticker: state.value
+        }
+      })
+    }else{
+      onCalculate({
+        eSPPExplanation:calculations,
+        latestValues: state.latestValues,
+        ticker: state.value
+      })
+    }
   }
 
 
@@ -162,7 +144,7 @@ const saveESPPExplanation = () => {
 
 
 
-const calculations = calcAllCalcs() 
+// const calculations = calcAllCalcs() 
 
 
 /**
@@ -215,31 +197,30 @@ return (
  <ESPPModal ModalOpen = {ModalOpen} setModalOpen = {()=>setModalOpen(!ModalOpen)} />
 <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container1}>
   
-
-  {activeSection == "done"?
-    <View style={{flex: 1}}>
-    <ScrollView style={styles.scrollView} showsVerticalScrollIndicator = {false}>
-          <View>
-              <Text style={styles.question1}>Enter Ticker of Your Company's Stock </Text>
-              <View>
-                  <TextInput 
-                    style = {[styles.answer1,{marginBottom: 0}]}
-                    underlineColorAndroid = "transparent"
-                    placeholder = "Please enter ..."
-                    //autoCapitalize = "none"
-                    value={state.value}
-                    onChangeText = {value => {setState({...state, value}) }}
-                    
-                  />
-                <View style={{alignSelf: 'flex-end', marginTop: 15}}>
-                  <TouchableOpacity style={{backgroundColor: 'rgb(12,121,42)', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 10}}>
-                    <Text style={{color:"white", fontWeight: "700", fontSize: 12}}>Fetch Stock</Text>
-                  </TouchableOpacity>
-                  <Button style={{color:"#15317E"}} title={""} onPress = {fetchStock} />
-                </View>
+  {activeSection == "done" || onCalculate !== false?
+    <View style={{flex: 1, padding: 15}}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator = {false}>
+        <View>
+            <Text style={styles.question1}>Enter Ticker of Your Company's Stock </Text>
+            <View>
+                <TextInput 
+                  style = {[styles.answer1,{marginBottom: 0}]}
+                  underlineColorAndroid = "transparent"
+                  placeholder = "Please enter ..."
+                  //autoCapitalize = "none"
+                  value={state.value}
+                  onChangeText = {value => {setState({...state, value}) }}
+                  
+                />
+              <View style={{alignSelf: 'flex-end', marginTop: 15}}>
+                <TouchableOpacity style={{backgroundColor: 'rgb(12,121,42)', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 10}}>
+                  <Text style={{color:"white", fontWeight: "700", fontSize: 12}}>Fetch Stock</Text>
+                </TouchableOpacity>
+                <Button style={{color:"#15317E"}} title={""} onPress = {fetchStock} />
               </View>
-          
-          
+            </View>
+        
+            <View style={{marginVertical: 10}}>
               <Text style={styles.question1}>Current Stock Price - Yesterday's Close</Text>
               <TextInput style = {[styles.answer1]}
                   underlineColorAndroid = "transparent"
@@ -251,9 +232,9 @@ return (
                   // onChangeText = {CurrentMarketPrice => setCurrentMarketPrice(CurrentMarketPrice)}
                   //keyboardType={'numeric'}
                 />
-
+            </View>
+            <View style={{marginVertical: 10}}>
               <Text style={styles.question1}>Company's Offered Discount on Stock (%)</Text>
-          
               <TextInput style = {styles.answer1}
                 value={StockDiscount} 
                 onChangeText={StockDiscount => setStockDiscount(StockDiscount)}
@@ -261,14 +242,13 @@ return (
                 placeholder = "Please enter ..."
                 autoCapitalize = "none"
                 maxLength={2}
-                
                 input type="number" step="any"
                 keyboardType={'numeric'}    
               />
-        
-        
-          
-          <Text style={styles.question1}>ESPP Employee Contribution ($)
+            </View>
+      
+            <View style={{marginVertical: 10}}>
+              <Text style={styles.question1}>ESPP Employee Contribution ($)
               </Text>
               <InputWrapper value = {EmployeeContribution}>
               <TextInput style = {[styles.answer1,{color: "transparent"}]}
@@ -283,8 +263,10 @@ return (
               />
               </InputWrapper>
 
-              <Text style={styles.question1}>Market Price on 1st Day of Subscription Period
-              </Text>
+            </View>
+        
+            <View style={{marginVertical: 10}}>
+              <Text style={styles.question1}>Market Price on 1st Day of Subscription Period</Text>
               <InputWrapper value = {SubscriptionDayPrice}>
               <TextInput style = {[styles.answer1,{color: "transparent"}]}
                   underlineColorAndroid = "transparent"
@@ -296,9 +278,9 @@ return (
                   keyboardType={'numeric'}
               />
               </InputWrapper>
-
-              <Text style={styles.question1}>Market Price on Purchase Date
-              </Text>
+            </View>  
+            <View style={{marginVertical: 10}}>
+              <Text style={styles.question1}>Market Price on Purchase Date</Text>
               <InputWrapper value = {PurchaseDayMarketPrice}>
               <TextInput style = {[styles.answer1,{color: "transparent"}]}
                   underlineColorAndroid = "transparent"
@@ -310,10 +292,9 @@ return (
                   keyboardType={'numeric'}
               />
               </InputWrapper>
-
-              <Text style={styles.question1}>Stock Price - Lower Of The Two 
-              </Text>
-              
+            </View>
+            <View style={{marginVertical: 10}}>
+              <Text style={styles.question1}>Stock Price - Lower Of The Two</Text>
               <InputWrapper value = {LowerPrice}>
               <TextInput style = {[styles.answer1,{color: "transparent"}]}
                   
@@ -326,6 +307,8 @@ return (
                   keyboardType={'numeric'}
                 />
               </InputWrapper>
+            </View>
+            <View style={{marginVertical: 10}}>
               <Text style={styles.question1}>Assumed Annual Growth Rate (%)</Text>
               <TextInput style = {styles.answer1}
                   underlineColorAndroid = "transparent"
@@ -337,18 +320,20 @@ return (
                   maxLength={2}
                   keyboardType={'numeric'}
             />
+            </View>
 
-        <Separator/>
+      <Separator/>
 
-                
-        </View>
-       </ScrollView>
-      <TouchableOpacity onPress={showESPPExplanation} style={[styles.Button1,{backgroundColor: isDisable?"lightgray": "#15317E"}]} disabled = {isDisable}>
+              
+      </View>
+      </ScrollView>
+      <TouchableOpacity onPress={showESPPExplanation} style={[styles.Button1,{backgroundColor: isDisable?"lightgray": "rgb(12,121,42)"}]} disabled = {isDisable}>
           <Text style={[styles.historyBtnText]}>Calculate</Text>
       </TouchableOpacity>
-      </View>
-      :
-      <Swipper setActiveSection ={(index)=>setActiveSection(index)} activeSection = {activeSection} />
+    </View>
+    :
+    
+    <Swipper setActiveSection ={(index)=>setActiveSection(index)} activeSection = {activeSection} />
   }
   
 
@@ -373,7 +358,7 @@ container1: {
     backgroundColor: '#FFFFFF',
     shadowColor:'black',
     // paddingTop: 20,
-    padding: 15,
+    // padding: 15,
     // paddingBottom: 70,
     flex: 1
   },
@@ -390,7 +375,7 @@ container1: {
 
   question1: {
     // marginTop: 4,
-    // marginBottom: 4,
+    marginBottom: 5,
     color: '#5C5C5C',
     marginHorizontal: 4,
     //justifyContent: 'center',
@@ -421,12 +406,12 @@ answer1: {
     elevation: 5,
     flexDirection: 'row',
     minHeight: 40,
-    marginVertical: 5,
-    marginBottom: 20,
-    paddingHorizontal: 10
+    // marginVertical: 5,
+    // marginBottom: 20,
+    paddingHorizontal: 10,
     
     // alignItems: 'center',//
-    // textAlign: 'center',//
+    // textAlign: 'center',
     // backgroundColor: 'red',
   },
   
